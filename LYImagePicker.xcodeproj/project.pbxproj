@@ -12,6 +12,8 @@
 		EA22E67A1E4B554800106E1A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA22E6781E4B554800106E1A /* Main.storyboard */; };
 		EA22E67C1E4B554800106E1A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA22E67B1E4B554800106E1A /* Assets.xcassets */; };
 		EA22E67F1E4B554800106E1A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA22E67D1E4B554800106E1A /* LaunchScreen.storyboard */; };
+		EA22E6871E4B565C00106E1A /* LYImagePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA22E6861E4B565C00106E1A /* LYImagePickerViewController.swift */; };
+		EA22E6891E4B59F400106E1A /* ic_asset_select_p@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA22E6881E4B59F400106E1A /* ic_asset_select_p@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,8 @@
 		EA22E67B1E4B554800106E1A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EA22E67E1E4B554800106E1A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EA22E6801E4B554800106E1A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EA22E6861E4B565C00106E1A /* LYImagePickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LYImagePickerViewController.swift; sourceTree = "<group>"; };
+		EA22E6881E4B59F400106E1A /* ic_asset_select_p@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ic_asset_select_p@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +58,8 @@
 		EA22E6731E4B554800106E1A /* LYImagePicker */ = {
 			isa = PBXGroup;
 			children = (
+				EA22E6881E4B59F400106E1A /* ic_asset_select_p@2x.png */,
+				EA22E6861E4B565C00106E1A /* LYImagePickerViewController.swift */,
 				EA22E6741E4B554800106E1A /* AppDelegate.swift */,
 				EA22E6761E4B554800106E1A /* ViewController.swift */,
 				EA22E6781E4B554800106E1A /* Main.storyboard */,
@@ -126,6 +132,7 @@
 			files = (
 				EA22E67F1E4B554800106E1A /* LaunchScreen.storyboard in Resources */,
 				EA22E67C1E4B554800106E1A /* Assets.xcassets in Resources */,
+				EA22E6891E4B59F400106E1A /* ic_asset_select_p@2x.png in Resources */,
 				EA22E67A1E4B554800106E1A /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -137,6 +144,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA22E6871E4B565C00106E1A /* LYImagePickerViewController.swift in Sources */,
 				EA22E6771E4B554800106E1A /* ViewController.swift in Sources */,
 				EA22E6751E4B554800106E1A /* AppDelegate.swift in Sources */,
 			);
@@ -263,6 +271,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = H753S6CC3H;
 				INFOPLIST_FILE = LYImagePicker/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tony.LYImagePicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -276,6 +285,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = H753S6CC3H;
 				INFOPLIST_FILE = LYImagePicker/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tony.LYImagePicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
