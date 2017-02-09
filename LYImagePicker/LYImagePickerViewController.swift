@@ -75,7 +75,6 @@ class LYImagePickerViewController: UIViewController {
     
     fileprivate var collectionView: UICollectionView!
     fileprivate var collectionViewLayout: UICollectionViewFlowLayout!
-    fileprivate var activityIndicator: UIActivityIndicatorView!
     
     fileprivate var titleLabel: UILabel!
     fileprivate var cancelButton: UIButton!
@@ -148,16 +147,19 @@ class LYImagePickerViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
         
-        UIApplication.shared.setStatusBarStyle(.default, animated: false)
-        UIApplication.shared.isStatusBarHidden = true
+        return .lightContent
+    }
+    
+    override var prefersStatusBarHidden: Bool {
         
+        return true
     }
     
     private func setup() {
-        
-        activityIndicator = UIActivityIndicatorView()
-        activityIndicator.color = UIColor.orange
         
         sideSize = self.view.bounds.width / CGFloat(cellCount)
         collectionViewLayout = UICollectionViewFlowLayout()
@@ -213,9 +215,24 @@ class LYImagePickerViewController: UIViewController {
         show(alert, sender: nil)
     }
     
+    // 根据创建时间排序
+    fileprivate func fetchAssetsWithDate(assetCollection: PHAssetCollection, mediaType: PHAssetMediaType) -> PHFetchResult<PHAsset> {
+        
+        let fetchOptions = PHFetchOptions()
+        
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        if mediaType != .unknown {
+            fetchOptions.predicate = NSPredicate(format: "mediaType = %d", mediaType.rawValue)
+        }
+        
+        let assets = PHAsset.fetchAssets(in: assetCollection, options: fetchOptions)
+        
+        return assets
+    }
+    
     // 加载图片
     fileprivate func reloadAssets() {
-        
         // 请求授权
         PHPhotoLibrary.requestAuthorization({ (status: PHAuthorizationStatus) in
             
@@ -223,18 +240,16 @@ class LYImagePickerViewController: UIViewController {
                 switch status {
                 case .authorized:
                     
-                    self?.activityIndicator.startAnimating()
                     self?.assets = nil
                     self?.collectionView.reloadData()
                     // 相机胶卷
                     if let cameraColl = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil).lastObject {
                         
                         self?.titleLabel.text = cameraColl.localizedTitle
+                        self?.assets = self?.fetchAssetsWithDate(assetCollection: cameraColl, mediaType: self!.mediaType)
+                        
                     }
-                    
-                    self?.assets = PHAsset.fetchAssets(with: self!.mediaType, options: nil)
                     self?.collectionView.reloadData()
-                    self?.activityIndicator.stopAnimating()
                     break
                 case .notDetermined:// 请求时不存在这种情况
                     
@@ -264,8 +279,6 @@ class LYImagePickerViewController: UIViewController {
             }
             
         })
-        
-        
     }
     
     @objc func cancelAction(_ sender: UIButton) {
@@ -301,7 +314,9 @@ class LYImagePickerViewCell: UICollectionViewCell {
     var markerSize: CGFloat = 24
     var markerMargin: CGFloat = 4
     
-    var assetImage:UIImageView!
+    var assetImageView:UIImageView!
+    
+    var assetDurationLabel: UILabel!
     // 遮罩视图
     var markView: UIView!
     
@@ -336,11 +351,17 @@ class LYImagePickerViewCell: UICollectionViewCell {
         self.clipsToBounds = true
         
         let contentFrame = CGRect(x: margin, y: margin, width: self.bounds.width - margin * 2, height: self.bounds.height - margin * 2)
-        assetImage = UIImageView(frame: contentFrame)
-        assetImage.contentMode = UIViewContentMode.scaleAspectFill
-        assetImage.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        assetImage.clipsToBounds = true
-        addSubview(assetImage)
+        assetImageView = UIImageView(frame: contentFrame)
+        assetImageView.contentMode = UIViewContentMode.scaleAspectFill
+        assetImageView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        assetImageView.clipsToBounds = true
+        addSubview(assetImageView)
+        
+        assetDurationLabel = UILabel(frame: CGRect(x: 8, y: self.bounds.height - 20, width: self.bounds.width - 8 * 2, height: 20))
+        assetDurationLabel.font = UIFont.systemFont(ofSize: 12)
+        assetDurationLabel.textColor = .white
+        assetDurationLabel.textAlignment = .right
+        addSubview(assetDurationLabel)
         
         markView = UIView(frame: contentFrame)
         markView.backgroundColor = UIColor(white: 1, alpha: 0.3)
@@ -359,10 +380,12 @@ class LYImagePickerViewCell: UICollectionViewCell {
         super.layoutSubviews()
         
         let contentFrame = CGRect(x: margin, y: margin, width: self.bounds.width - margin * 2, height: self.bounds.height - margin * 2)
-        assetImage.frame = contentFrame
+        assetImageView.frame = contentFrame
         markView.frame = contentFrame
         
         imageMarker.frame = CGRect(x: self.frame.width - markerSize - markerMargin, y: self.frame.height - markerSize - markerMargin, width: markerSize, height: markerSize)
+        
+        assetDurationLabel.frame = CGRect(x: 8, y: self.bounds.height - 20, width: self.bounds.width - 8 * 2, height: 20)
     }
     
 }
@@ -386,7 +409,7 @@ extension LYImagePickerViewController: UICollectionViewDataSource {
         
         PHImageManager.default().requestImage(for: asset, targetSize: CGSize(width: sideSize, height: sideSize), contentMode: .aspectFill, options: nil) { (image: UIImage?, info: [AnyHashable: Any]?) -> Void in
             
-            cell.assetImage.image = image
+            cell.assetImageView.image = image
         }
         
         if let selected = asset.assetSelected {
@@ -398,9 +421,28 @@ extension LYImagePickerViewController: UICollectionViewDataSource {
             cell.imageMarker.isHidden = true
         }
         
-        
+        if asset.mediaType == .video {
+            cell.assetDurationLabel.isHidden = false
+            cell.assetDurationLabel.text = stringWithSeconds(asset.duration)
+        } else {
+            cell.assetDurationLabel.isHidden = true
+        }
         
         return cell
+    }
+    
+    /** 将时长处理成时间字符串显示 */
+    fileprivate func stringWithSeconds(_ duration:Double) -> String {
+        let hour:Int = Int(duration/3600);
+        let hour_:Int = Int(duration.truncatingRemainder(dividingBy: 3600));
+        let minute:Int = Int(hour_/60);
+        let sec:Int = Int(hour_%60);
+        
+        if(hour==0){
+            return String(format: "%02d:%02d", minute,sec);
+        }
+        
+        return String(format: "%02d:%02d:%02d", hour,minute,sec);
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
